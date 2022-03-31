@@ -26,19 +26,5 @@ void gotoXY(int x, int y) {
 	fflush(stdout);
 }
 
-//void boarder()
-//{
-//	clearScreen();
-//	gotoXY(1, 1);
-//	horizon_wall();
-//	for (int y = 0; y < MAX_Y; y++) {
-//		printf("|");
-//		/*for (int i = 1; i < MAX_X+1; i++) {
-//			printf(" ");
-//		}*/
-//		gotoXY(MAX_X+2,y);
-//		printf("|\n");
-//	}
-//	horizon_wall();
-//}
+
 

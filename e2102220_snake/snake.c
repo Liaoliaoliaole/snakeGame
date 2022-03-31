@@ -1,8 +1,12 @@
-#include<stdio.h>
+﻿#include<stdio.h>
 #include<conio.h>
+#include <stdlib.h>
 #include"snake.h"
 #include"screen.h"
 
+bool is_dead;
+
+//initial the snake in the center, body left,return snake
 struct snake init_snake(int len) {
 	struct snake local_s;
 	local_s.head.y = INITROW;
@@ -23,7 +27,54 @@ void horizon_wall() {
 	printf("|");
 }
 
-void draw(struct snake s) {
+bool is_empty_coord(struct snake s, struct coord loc) {
+	if (s.head.x == loc.x && s.head.y == loc.y)  return false;
+	for (int i = 0; i < s.length - 1; i++) {
+		if (s.body[i].x == loc.x && s.body[i].y == loc.y) return false;
+	}
+	return true;
+}
+
+struct coord get_empty_coord(struct snake s,struct coord loc) {
+	struct coord emptyLoc;
+	int scanX_start = loc.x;
+	int scanX_end = loc.x;
+	int scanY_start = loc.y;
+	int scanY_end = loc.y;
+	if (s.length == MAX_X * MAX_Y) is_dead = true;
+	while (1) {
+		scanX_start--;
+		scanX_end++;
+		scanY_start--;
+		scanY_end++;
+		if (scanX_start < 0) scanX_start = 0;
+		if (scanY_start < 0) scanY_start = 0;
+		if (scanX_end > MAX_X) scanX_end = MAX_X;
+		if (scanY_end > MAX_Y) scanY_end = MAX_Y;
+		for (int x = scanX_start; x <= scanX_end; x++) {
+			for (int y = scanY_start; y <= scanY_end; y++) {
+				emptyLoc.x = x; emptyLoc.y = y;
+				if (is_empty_coord(s,emptyLoc) == true) {
+					return emptyLoc;
+				}
+			}
+		}
+	}
+}
+
+struct coord creat_food(struct snake s) {
+	struct coord food;
+	food.x = rand() % MAX_X;
+	food.y = rand() % MAX_Y;
+	bool isEmpty = false;
+	if (is_empty_coord(s,food) == false) {
+		food = get_empty_coord(s,food);
+	}
+	return food;
+}
+
+//show playground and snake
+void draw(struct snake s, struct coord food) {
 	int ground[MAX_Y][MAX_X];
 	clearScreen();
 	setForeground(RED);
@@ -49,8 +100,14 @@ void draw(struct snake s) {
 			if (i == s.head.y && j == s.head.x) {
 				setBackground(GREEN);
 				gotoXY(s.head.x, s.head.y);
-				printf("  ");
+				printf(" ");
 				resetColors();
+				continue;
+			}
+			bool isEmpty = true;
+			if (i== food.y  && j== food.x) {
+				printf("F"); 
+				isEmpty = false; 
 				continue;
 			}
 			if (j == MAX_X - 1) {
@@ -58,12 +115,11 @@ void draw(struct snake s) {
 				printf("|");
 				continue;
 			}
-			bool isEmpty = true;
 			for (int l = 0; l < s.length; l++) {
 				if (i == s.body[l].y && (j == s.body[l].x)) {
 					setBackground(CYAN);
 					gotoXY(s.body[l].x, s.body[l].y);
-					printf("  ");
+					printf(" ");
 					isEmpty = false;
 				}
 				resetColors();
@@ -98,7 +154,6 @@ int get_key() {
 	}
 }
 
-
 struct snake move(struct snake s, int k) {
 	struct snake ns;
 	ns.head = s.head;
@@ -120,7 +175,7 @@ struct snake move(struct snake s, int k) {
 		return ns;
 	}
 	if (k == LEFT) {
-		ns.head.x-=2;
+		ns.head.x--;
 		ns.body[0] = s.head;
 		for (int i = 1; i < s.length; i++) {
 			ns.body[i] = s.body[i - 1];
@@ -128,12 +183,31 @@ struct snake move(struct snake s, int k) {
 		return ns;
 	}
 	if (k == RIGHT) {
-		ns.head.x+=2;
+		ns.head.x++;
 		ns.body[0] = s.head;
 		for (int i = 1; i < s.length; i++) {
 			ns.body[i] = s.body[i - 1];
 		}
 		return ns;
 	}
-	
+}
+
+void is_hit_wall(struct snake s) {	
+	if (s.head.x >= MAX_X || s.head.x < 0 || s.head.y >= MAX_Y || s.head.y < 0) {
+		is_dead = true;
+	}
+	if (is_dead == true)
+		exit(0);
+}
+
+void is_hit_self(struct snake s) {
+	for (int i = 0; i < s.length - 1; i++) {
+		if (s.head.x == s.body[i].x && s.head.y == s.body[i].y) {
+			is_dead = true; 
+			break;
+		}
+	}
+	if (is_dead == true) {
+		exit(0);
+	}
 }
