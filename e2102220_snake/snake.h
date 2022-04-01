@@ -32,5 +32,5 @@ struct snake move(struct snake, int);
 bool is_empty_coord(struct snake s, struct coord loc);
 struct coord get_empty_coord(struct snake s, struct coord loc);
 struct coord creat_food(struct snake s);
-void is_hit_wall(struct snake s);
-void is_hit_self(struct snake s);
+bool is_hit_wall(struct snake s);
+bool is_hit_self(struct snake s);

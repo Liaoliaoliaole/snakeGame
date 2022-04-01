@@ -19,14 +19,6 @@ struct snake init_snake(int len) {
 	return local_s;
 }
 
-void horizon_wall() {
-	printf("|");
-	for (int i = 1; i < MAX_X - 1; i++) {
-		printf("-");
-	}
-	printf("|");
-}
-
 bool is_empty_coord(struct snake s, struct coord loc) {
 	if (s.head.x == loc.x && s.head.y == loc.y)  return false;
 	for (int i = 0; i < s.length - 1; i++) {
@@ -73,12 +65,20 @@ struct coord creat_food(struct snake s) {
 	return food;
 }
 
-//show playground and snake
+void horizon_wall() {
+	printf("|");
+	for (int i = 1; i < MAX_X - 1; i++) {
+		printf("-");
+	}
+	printf("|");
+}
+
+//show playground+snake+food dynamicly
 void draw(struct snake s, struct coord food) {
 	int ground[MAX_Y][MAX_X];
 	clearScreen();
 	setForeground(RED);
-	gotoXY(0, 0);
+	gotoXY(1, 1);
 	horizon_wall();
 	printf("\n");
 	////draw snake
@@ -91,9 +91,9 @@ void draw(struct snake s, struct coord food) {
 	//	printf("  ");
 	//}
 	//resetColors();
-	for (int i = 0; i < MAX_Y; i++) {
-		for (int j = 0; j < MAX_X; j++) {
-			if (j == 0) {
+	for (int i = 1; i <= MAX_Y; i++) {
+		for (int j = 1; j <= MAX_X; j++) {
+			if (j == 1) {
 				printf("|");
 				continue;
 			}
@@ -110,7 +110,7 @@ void draw(struct snake s, struct coord food) {
 				isEmpty = false; 
 				continue;
 			}
-			if (j == MAX_X - 1) {
+			if (j == MAX_X) {
 				setForeground(RED);
 				printf("|");
 				continue;
@@ -131,7 +131,7 @@ void draw(struct snake s, struct coord food) {
 		printf("\n");
 	}
 	setForeground(RED);
-	gotoXY(0, MAX_Y);
+	gotoXY(1, MAX_Y);
 	horizon_wall();
 	resetColors();	
 }
@@ -192,22 +192,28 @@ struct snake move(struct snake s, int k) {
 	}
 }
 
-void is_hit_wall(struct snake s) {	
-	if (s.head.x >= MAX_X || s.head.x < 0 || s.head.y >= MAX_Y || s.head.y < 0) {
+bool is_hit_wall(struct snake s) {	
+	if (s.head.x >= MAX_X || s.head.x <= 1 || s.head.y >= MAX_Y || s.head.y <= 1) {
 		is_dead = true;
 	}
-	if (is_dead == true)
-		exit(0);
+	if (is_dead == true) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
-void is_hit_self(struct snake s) {
+bool is_hit_self(struct snake s) {
 	for (int i = 0; i < s.length - 1; i++) {
-		if (s.head.x == s.body[i].x && s.head.y == s.body[i].y) {
+		if ((s.head.x == s.body[i].x) && (s.head.y == s.body[i].y)) {
 			is_dead = true; 
-			break;
 		}
 	}
 	if (is_dead == true) {
-		exit(0);
+		return true;
+	}
+	else {
+		return false;
 	}
 }
