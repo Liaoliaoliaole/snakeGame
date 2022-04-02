@@ -18,17 +18,18 @@ int main() {
 	struct coord randomFood;
 	s = init_snake(INITLEN);
 	randomFood = creat_food(s);
-	int life = 1;
-	while(life>0) {
+	
+	while(1) {
 		draw(s, randomFood);
 		int k = get_key();
-		s = move(s, k);
+		if ((s.head.x == randomFood.x) && (s.head.y == randomFood.y)) {
+			s =  snake_grow(s);
+			randomFood = creat_food(s);
+		}
 		if (is_hit_wall(s) == true || is_hit_self(s) == true) {
-			life--;
 			return;
 		}
+		s = move(s, k,randomFood);
 	}
-	printf("GAME OVER!");
-
 	return 0;
 }

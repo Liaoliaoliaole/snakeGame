@@ -6,6 +6,7 @@
 
 bool is_dead;
 
+
 //initial the snake in the center, body left,return snake
 struct snake init_snake(int len) {
 	struct snake local_s;
@@ -56,8 +57,8 @@ struct coord get_empty_coord(struct snake s,struct coord loc) {
 
 struct coord creat_food(struct snake s) {
 	struct coord food;
-	food.x = rand() % MAX_X;
-	food.y = rand() % MAX_Y;
+	food.x = rand()%MAX_X;
+	food.y = rand()%MAX_Y;
 	bool isEmpty = false;
 	if (is_empty_coord(s,food) == false) {
 		food = get_empty_coord(s,food);
@@ -76,6 +77,7 @@ void horizon_wall() {
 //show playground+snake+food dynamicly
 void draw(struct snake s, struct coord food) {
 	int ground[MAX_Y][MAX_X];
+
 	clearScreen();
 	setForeground(RED);
 	gotoXY(1, 1);
@@ -97,6 +99,11 @@ void draw(struct snake s, struct coord food) {
 				printf("|");
 				continue;
 			}
+			if (j == MAX_X) {
+				setForeground(RED);
+				printf("|");
+				continue;
+			}
 			if (i == s.head.y && j == s.head.x) {
 				setBackground(GREEN);
 				gotoXY(s.head.x, s.head.y);
@@ -105,16 +112,6 @@ void draw(struct snake s, struct coord food) {
 				continue;
 			}
 			bool isEmpty = true;
-			if (i== food.y  && j== food.x) {
-				printf("F"); 
-				isEmpty = false; 
-				continue;
-			}
-			if (j == MAX_X) {
-				setForeground(RED);
-				printf("|");
-				continue;
-			}
 			for (int l = 0; l < s.length; l++) {
 				if (i == s.body[l].y && (j == s.body[l].x)) {
 					setBackground(CYAN);
@@ -122,6 +119,13 @@ void draw(struct snake s, struct coord food) {
 					printf(" ");
 					isEmpty = false;
 				}
+				resetColors();
+			}
+			if (i == food.y && j == food.x) {
+				setBackground(MAGENTA);
+				gotoXY(food.x, food.y);
+				printf(" ");
+				isEmpty = false;
 				resetColors();
 			}
 			if (isEmpty == true) {
@@ -154,7 +158,7 @@ int get_key() {
 	}
 }
 
-struct snake move(struct snake s, int k) {
+struct snake move(struct snake s, int k,struct coord food) {
 	struct snake ns;
 	ns.head = s.head;
 	ns.length = s.length;
@@ -190,6 +194,7 @@ struct snake move(struct snake s, int k) {
 		}
 		return ns;
 	}
+	
 }
 
 bool is_hit_wall(struct snake s) {	
@@ -216,4 +221,45 @@ bool is_hit_self(struct snake s) {
 	else {
 		return false;
 	}
+}
+
+struct snake snake_grow(struct snake s) {
+	if (s.length + 1 == MAX_X * MAX_Y) { 
+		is_dead = true; 
+		return; 
+	}
+	struct coord currentTail;
+	struct coord secondLastTail;
+	struct coord diff;
+	struct coord growTail;
+	currentTail.x = s.body[s.length - 1].x;
+	currentTail.y = s.body[s.length - 1].y;
+	secondLastTail.x = s.body[s.length - 2].x;
+	secondLastTail.y = s.body[s.length - 2].y;
+	diff.x = currentTail.x - secondLastTail.x;
+	diff.y = currentTail.y - secondLastTail.y;
+	if (diff.x == 0) {
+		if (diff.y == -1) {
+			growTail.x = currentTail.x;
+			growTail.y = currentTail.y - 1;
+
+		}
+		else if (diff.y == 1) {
+			growTail.x = currentTail.x;
+			growTail.y = currentTail.y + 1;
+		}
+	}
+	if (diff.y == 0) {
+		if (diff.x == -1) {
+			growTail.x = currentTail.x -1;
+			growTail.y = currentTail.y;
+		}
+		else if (diff.x == 1) {
+			growTail.x = currentTail.x +1;
+			growTail.y = currentTail.y;
+		}
+	}
+	s.length++;
+	
+	return s;
 }
